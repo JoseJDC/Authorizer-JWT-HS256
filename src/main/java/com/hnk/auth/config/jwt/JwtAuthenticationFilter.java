@@ -1,8 +1,11 @@
 package com.hnk.auth.config.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,13 +22,10 @@ import java.util.Collections;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Value("${security.key}")
-    private String secretKey;
+    private final String secretKey;
 
-    private JwtUtils jwtUtils;
-
-    public JwtAuthenticationFilter(JwtUtils jwtUtils) {
-        this.jwtUtils = jwtUtils;
+    public JwtAuthenticationFilter(String secretKey) {
+        this.secretKey = secretKey;
     }
 
     @Override
@@ -39,10 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwtToken = authHeader.substring(7);
             try {
-
-
-//                jwtUtils. Validat token
-//
                 Claims claims = Jwts.parser()
                         .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                         .build()
@@ -57,8 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
-            } catch (Exception e) {
-                System.out.println(">>> Token inválido: " + e.getMessage());
+            }  catch (ExpiredJwtException e) {
+                request.setAttribute("exception", "expired");
+            } catch (SignatureException e) {
+                request.setAttribute("exception", "invalid_signature");
+            } catch (JwtException e) {
+                request.setAttribute("exception", "invalid_token");
             }
         }
 

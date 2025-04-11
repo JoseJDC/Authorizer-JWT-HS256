@@ -1,7 +1,7 @@
 package com.hnk.auth.controller;
 
 import com.hnk.auth.config.jwt.JwtUtils;
-import com.hnk.auth.controller.payload.request.AuthRequest;
+import com.hnk.auth.dto.AuthRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,9 +9,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -29,8 +31,9 @@ public class AuthController {
     }
 
     @GetMapping("/hello")
-    public String hello(){
-        return "private";
+    public ResponseEntity<String> hello(){
+        String process;
+            throw new IllegalArgumentException("LOLOLOL");
     }
 
 }

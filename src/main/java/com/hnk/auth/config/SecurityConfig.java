@@ -1,9 +1,11 @@
 package com.hnk.auth.config;
 
+import com.hnk.auth.config.jwt.JwtAuthenticationEntryPoint;
 import com.hnk.auth.config.jwt.JwtAuthenticationFilter;
 import com.hnk.auth.config.jwt.JwtUtils;
 import com.hnk.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,17 +25,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${security.key}")
+    private String secretKey;
+
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtils), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(secretKey), UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();

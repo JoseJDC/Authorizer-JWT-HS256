@@ -1,4 +1,4 @@
-package com.hnk.auth.controller.payload.request;
+package com.hnk.auth.dto;
 
 import lombok.Data;
 
