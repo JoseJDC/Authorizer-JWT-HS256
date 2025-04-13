@@ -8,37 +8,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
-    public void commence(
+    public void handle(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException authException
+            AccessDeniedException accessDeniedException
     ) throws IOException {
-        String exception = (String) request.getAttribute("exception");
-
-        String errorMessage = "No autorizado";
-        if(exception != null) {
-            if (exception.equals("expiration")) {
-                errorMessage = "Sesión expirada";
-            } else if (exception.equals("signature")) {
-                errorMessage = "Credenciales invalidas";
-            }
-        }
-
         ErrorResponse error = ErrorResponse.builder()
-                .message(errorMessage)
+                .message("Acceso denegado")
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
+                .status(HttpStatus.FORBIDDEN.value())
                 .build();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -46,7 +35,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         response.setContentType(MediaType.APPLICATION_JSON.toString());
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         response.getWriter().write(mapper.writeValueAsString(error));
     }
 }

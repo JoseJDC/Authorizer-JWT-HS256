@@ -2,11 +2,14 @@ package com.hnk.auth.controller;
 
 import com.hnk.auth.config.jwt.JwtUtils;
 import com.hnk.auth.dto.AuthRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +26,7 @@ public class AuthController {
     private JwtUtils jwtUtils;
 
     @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest request){
+    public ResponseEntity<String> login(@RequestBody @Valid AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
@@ -31,9 +34,7 @@ public class AuthController {
     }
 
     @GetMapping("/hello")
-    public ResponseEntity<String> hello(){
-        String process;
-            throw new IllegalArgumentException("LOLOLOL");
+    public ResponseEntity<String> hello() {
+        return ResponseEntity.ok("hola");
     }
-
 }

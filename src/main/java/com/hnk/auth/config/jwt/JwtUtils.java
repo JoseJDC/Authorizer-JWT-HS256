@@ -5,7 +5,6 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,13 +19,16 @@ public class JwtUtils {
     @Value("${security.key}")
     private String secretKey;
 
+    @Value("${security.expiration}")
+    private long expirationMinutes;
+
     public String generateToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         long now = System.currentTimeMillis();
-        long expiration = now + 1000 * 60 * 60;
+        long expiration = now + expirationMinutes * 60_000L;
 
         return Jwts.builder().issuer(issuerName)
                 .subject(authentication.getName())

@@ -1,16 +1,12 @@
 package com.hnk.auth.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -19,6 +15,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

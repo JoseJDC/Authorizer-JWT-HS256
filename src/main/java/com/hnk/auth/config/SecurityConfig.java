@@ -1,8 +1,8 @@
 package com.hnk.auth.config;
 
+import com.hnk.auth.config.jwt.JwtAccessDeniedHandler;
 import com.hnk.auth.config.jwt.JwtAuthenticationEntryPoint;
 import com.hnk.auth.config.jwt.JwtAuthenticationFilter;
-import com.hnk.auth.config.jwt.JwtUtils;
 import com.hnk.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,27 +30,34 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    @Autowired
+    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/hello").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(secretKey), UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(Customizer.withDefaults());
+                .exceptionHandling(exception -> {
+                    exception.authenticationEntryPoint(jwtAuthenticationEntryPoint);
+                    exception.accessDeniedHandler(jwtAccessDeniedHandler);
+                });
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    public AuthenticationProvider authenticationManager(UserService userService) {
+    public AuthenticationProvider authenticationProvider(UserService userService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userService);
         provider.setPasswordEncoder(passwordEncoder());
