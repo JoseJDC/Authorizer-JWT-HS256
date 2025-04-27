@@ -1,14 +1,14 @@
 package com.hnk.auth.exception;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,8 +16,8 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(NoResourceFoundException ex) {
         ErrorResponse error = ErrorResponse.builder()
                 .message("El recurso solicitado no fue encontrado")
                 .timestamp(LocalDateTime.now())
@@ -63,9 +63,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
                 .toList();
 
         ErrorResponse error = ErrorResponse.builder()
