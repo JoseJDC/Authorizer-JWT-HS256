@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,16 +24,15 @@ public class JwtUtils {
     private long expirationMinutes;
 
     public String generateToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+        List<String> authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority).toList();
 
         long now = System.currentTimeMillis();
         long expiration = now + expirationMinutes * 60_000L;
 
         return Jwts.builder().issuer(issuerName)
                 .subject(authentication.getName())
-                .claim("roles", authorities)
+                .claim("authorities", authorities)
                 .issuedAt(new Date(now))
                 .expiration(new Date(expiration))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), Jwts.SIG.HS256)
