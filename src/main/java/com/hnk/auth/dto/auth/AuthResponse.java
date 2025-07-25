@@ -1,4 +1,4 @@
-package com.hnk.auth.dto;
+package com.hnk.auth.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

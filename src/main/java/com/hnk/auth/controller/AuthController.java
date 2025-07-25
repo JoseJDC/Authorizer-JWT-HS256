@@ -1,8 +1,8 @@
 package com.hnk.auth.controller;
 
 import com.hnk.auth.config.jwt.JwtUtils;
-import com.hnk.auth.dto.AuthRequest;
-import com.hnk.auth.dto.AuthResponse;
+import com.hnk.auth.dto.auth.AuthRequest;
+import com.hnk.auth.dto.auth.AuthResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

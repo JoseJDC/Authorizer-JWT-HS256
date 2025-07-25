@@ -1,4 +1,4 @@
-package com.hnk.auth.dto;
+package com.hnk.auth.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
